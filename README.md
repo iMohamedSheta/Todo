@@ -20,7 +20,7 @@ A comprehensive Laravel package that helps you track and manage technical debt b
 1. Install via Composer:
 
 ```bash
-composer require imohamedsheta/todo:dev-main
+composer require imohamedsheta/todo:dev-master
 ```
 
 2. The package will auto-register its service provider and command.
@@ -30,7 +30,7 @@ composer require imohamedsheta/todo:dev-main
 ### Basic Scan
 Scan default directory (app):
 ```bash
-php artisan todo:scan
+php artisan todo
 ```
 
 ### Sample Output
@@ -106,7 +106,7 @@ class PendingFeature
 ### Custom Source Directories
 Scan specific directories:
 ```bash
-php artisan todo:scan --src=app/Http/Controllers
+php artisan todo --src=app/Http/Controllers
 ```
 
 ## Testing 🧪

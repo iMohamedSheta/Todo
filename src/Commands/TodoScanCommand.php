@@ -12,7 +12,7 @@ use SplFileInfo;
 
 class TodoScanCommand extends Command
 {
-    protected $signature = 'todo:scan {--src=app : The source directory that is going to be scanned for todos}';
+    protected $signature = 'todo {--src=app : The source directory that is going to be scanned for todos}';
 
     protected $description = 'Scan project for TODO attributes and display them.';
 
