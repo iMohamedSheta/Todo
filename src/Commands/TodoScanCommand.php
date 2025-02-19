@@ -52,7 +52,7 @@ class TodoScanCommand extends Command
             $todos,
         );
 
-        $this->info("\n🎯 Total TODOs Found: " . count($todos) . "\n");
+        $this->info("\n🎯 Total TODOs Found: ".count($todos)."\n");
 
         return 1;
     }
@@ -125,8 +125,8 @@ class TodoScanCommand extends Command
             if (function_exists($function)) {
                 $reflection = new ReflectionFunction((string) $function);
                 foreach ($reflection->getAttributes(TODO::class) as $attr) {
-                    $filePathStartFromBasePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $realPath); // @phpstan-ignore-line
-                    $todos[] = ['Function', $filePathStartFromBasePath . ' -> ' . $function . '()', $attr->newInstance()->message];
+                    $filePathStartFromBasePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $realPath);
+                    $todos[] = ['Function', $filePathStartFromBasePath.' -> '.$function.'()', $attr->newInstance()->message];
                 }
             }
         }

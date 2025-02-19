@@ -26,7 +26,7 @@ class FileCollectorService
             $filesList = array_map('trim', explode(',', $filesInput));
 
             foreach ($filesList as $filePath) {
-                $absolutePath = base_path($filePath); // @phpstan-ignore-line
+                $absolutePath = base_path($filePath);
 
                 if (! File::exists($absolutePath)) {
                     // TODO Log or warn here if a file doesn't exist.
@@ -42,7 +42,7 @@ class FileCollectorService
             $folderPaths = array_map('trim', explode(',', $foldersInput));
 
             foreach ($folderPaths as $folder) {
-                $absoluteFolder = base_path($folder); // @phpstan-ignore-line
+                $absoluteFolder = base_path($folder);
 
                 if (! File::exists($absoluteFolder)) {
                     // TODO Log or warn here if a folder doesn't exist.
