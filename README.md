@@ -20,7 +20,7 @@ A comprehensive Laravel package that helps you track and manage technical debt b
 1. Install via Composer:
 
 ```bash
-composer require imohamedsheta/todo:dev-master
+composer require imohamedsheta/todo:dev-main
 ```
 
 2. The package will auto-register its service provider and command.
