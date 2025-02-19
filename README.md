@@ -30,7 +30,7 @@ composer require imohamedsheta/todo:dev-master
 ### Basic Scan
 Scan default directory (app):
 ```bash
-php artisan todo
+php artisan todo:scan
 ```
 
 ### Sample Output
@@ -106,7 +106,7 @@ class PendingFeature
 ### Custom Source Directories
 Scan specific directories:
 ```bash
-php artisan todo --src=app/Http/Controllers
+php artisan todo:scan --src=app/Http/Controllers
 ```
 
 ## Testing 🧪
