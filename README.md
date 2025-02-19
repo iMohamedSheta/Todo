@@ -4,7 +4,7 @@
 
 # Laravel TODO Attribute Scanner
 
-A comprehensive Laravel package that helps you track and manage technical debt by scanning your codebase for `#[TODO]` attributes. Perfect for teams wanting to maintain clean codebases and track pending tasks directly in their source code.
+A small Laravel package that helps you track and manage technical debt by scanning your codebase for `#[TODO]` attributes.
 
 ## Features ✨
 
