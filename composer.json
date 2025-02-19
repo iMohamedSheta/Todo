@@ -40,6 +40,13 @@
             "Tests\\": "tests/"
         }
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "IMohamedSheta\\Todo\\TodoServiceProvider"
+            ]
+        }
+    },
     "prefer-stable": true,
     "config": {
         "sort-packages": true,
