@@ -1,0 +1,79 @@
+{
+    "name": "imohamedsheta/todo",
+    "description": "A Laravel package to scan #[TODO] attributes. (Under Construction - Not Finished, Not Tested)",
+    "keywords": [
+        "laravel",
+        "todo",
+        "todo attribute",
+        "todo attribute package",
+        "laravel todo"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "iMohamedSheta",
+            "email": "mohamed15.sheta15@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.3.0",
+        "illuminate/console": ">=9.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.18.1",
+        "mockery/mockery": "^1.6",
+        "orchestra/testbench": "*",
+        "peckphp/peck": "^0.1.1",
+        "pestphp/pest": "^3.5.1",
+        "pestphp/pest-plugin-type-coverage": "^3.1",
+        "phpstan/phpstan": "^1.12.7",
+        "rector/rector": "^1.2.8",
+        "symfony/var-dumper": "^7.1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "IMohamedSheta\\Todo\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist",
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "refacto": "rector",
+        "lint": "pint",
+        "test:refacto": "rector --dry-run",
+        "test:lint": "pint --test",
+        "test:typos": "peck",
+        "test:types": "phpstan analyse --ansi",
+        "test:unit": "pest --colors=always --coverage --parallel --min=100",
+        "test": [
+            "@test:refacto",
+            "@test:lint",
+            "@test:typos",
+            "@test:types",
+            "@test:unit"
+        ],
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ]
+    }
+}
