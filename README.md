@@ -107,9 +107,6 @@ Scan specific directories:
 php artisan todo --src=app/Http/Controllers
 ```
 
-## Testing 🧪
-this package not finished
-
 ## License 📄
 
 This package is open-source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
