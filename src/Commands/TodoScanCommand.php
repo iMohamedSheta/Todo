@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace IMohamedSheta\Todo\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
 use IMohamedSheta\Todo\Attributes\TODO;
 use IMohamedSheta\Todo\Services\FileCollectorService;
+use IMohamedSheta\Todo\Services\NamespaceResolverService;
 use ReflectionClass;
 use ReflectionFunction;
 use SplFileInfo;
@@ -16,8 +18,10 @@ class TodoScanCommand extends Command
 
     protected $description = 'Scan project for TODO attributes and display them.';
 
-    public function __construct(protected FileCollectorService $fileCollectorService)
-    {
+    public function __construct(
+        protected FileCollectorService $fileCollectorService,
+        protected NamespaceResolverService $namespaceResolverService
+    ) {
         parent::__construct();
     }
 
@@ -25,18 +29,14 @@ class TodoScanCommand extends Command
     {
         $this->info("\n🔍 Scanning for TODOs...\n");
 
-        $src = is_string($this->option('src')) ? $this->option('src') : 'app';
+        $files = $this->fileCollectorService->collectFiles($this->getScannedFolderFullPath());
 
-        // Collect PHP files
-        $files = $this->fileCollectorService->collectFiles($src);
-
-        if ($files->isEmpty()) {
+        if ($files === []) {
             $this->info("✅ No TODOs found!\n");
 
             return 0;
         }
 
-        // Scan for TODOs
         $todos = $this->scanFiles($files);
 
         if ($todos === []) {
@@ -60,32 +60,44 @@ class TodoScanCommand extends Command
     /**
      * Scan files for TODOs
      *
-     * @param  Collection<int, SplFileInfo>  $files
+     * @param  array<int, SplFileInfo>  $files
      * @return array<int, array{string, string, string}>
      */
-    protected function scanFiles(Collection $files): array
+    protected function scanFiles(array $files): array
     {
         $todos = [];
-
         foreach ($files as $file) {
-            $className = $this->getClassNameFromFile($file->getRealPath());
+            $className = $this->namespaceResolverService->getClassNameFromFile($file->getRealPath());
 
             if ($className && class_exists($className)) {
-
                 $reflection = new ReflectionClass($className);
-
-                // Check class-level #[TODO] attribute
                 $this->checkClassLevelAttributes($reflection, $todos);
-
-                // Check method-level #[TODO] attributes
                 $this->checkMethodLevelAttributes($reflection, $todos);
             }
 
-            // Check function-level  #[TODO] attributes
             $this->checkFunctionLevelAttributes($file, $todos);
         }
 
         return $todos;
+    }
+
+    /**
+     *  Check function level attributes
+     *
+     * @param  array<int, array{string, string, string}>  &$todos
+     */
+    protected function checkFunctionLevelAttributes(SplFileInfo $file, array &$todos): void
+    {
+        $functions = $this->namespaceResolverService->getFunctionsFromFile($file->getRealPath());
+
+        foreach ($functions as $function) {
+            if (function_exists($function)) {
+                $reflection = new ReflectionFunction($function);
+                foreach ($reflection->getAttributes(TODO::class) as $attr) {
+                    $todos[] = ['Function', $function, $attr->newInstance()->message];
+                }
+            }
+        }
     }
 
     /**
@@ -113,63 +125,16 @@ class TodoScanCommand extends Command
     }
 
     /**
-     * @param  array<int, array{string, string, string}>  $todos
-     */
-    protected function checkFunctionLevelAttributes(SplFileInfo $file, array &$todos): void
-    {
-        $realPath = $file->getRealPath();
-
-        $functions = $this->getFunctionsFromFile($realPath);
-
-        foreach ($functions as $function) {
-            if (function_exists($function)) {
-                $reflection = new ReflectionFunction((string) $function);
-                foreach ($reflection->getAttributes(TODO::class) as $attr) {
-                    $filePathStartFromBasePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $realPath);
-                    $todos[] = ['Function', $filePathStartFromBasePath.' -> '.$function.'()', $attr->newInstance()->message];
-                }
-            }
-        }
-    }
-
-    /**
-     * Get all functions from a file
+     * get scanned folder full path
      *
-     * @return array<int, string>
+     * @return string scanned folder full path
      */
-    protected function getFunctionsFromFile(string $filePath): array
+    private function getScannedFolderFullPath(): string
     {
-        $content = file_get_contents($filePath);
+        $src = is_string($this->option('src')) ? $this->option('src') : 'app';
 
-        if ($content === false) {
-            return [];
-        }
-        // Extract all functions
-        preg_match_all('/function\s+(\w+)\s*\(/', $content, $matches);
+        $basePath = dirname(__DIR__, 5);
 
-        return $matches[1];
-    }
-
-    /**
-     *  Get class name from file
-     */
-    protected function getClassNameFromFile(string $filePath): ?string
-    {
-        $content = file_get_contents($filePath);
-
-        if ($content === false) {
-            return null;
-        }
-
-        // Extract namespace
-        preg_match('/namespace\s+([\w\\\\]+);/', $content, $namespaceMatch);
-        $namespace = $namespaceMatch[1] ?? '';
-
-        // Extract class name
-        if (preg_match('/class\s+(\w+)/', $content, $classMatch)) {
-            return $namespace !== '' && $namespace !== '0' ? "{$namespace}\\{$classMatch[1]}" : $classMatch[1];
-        }
-
-        return null;
+        return $basePath.DIRECTORY_SEPARATOR.$src;
     }
 }

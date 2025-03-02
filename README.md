@@ -1,6 +1,4 @@
-# Todo Package (Under Construction 🚧)
-
-⚠️ This package is still under development. It is **not finished** and **not tested** yet. Use at your own risk!
+# Todo Package
 
 # Laravel TODO Attribute Scanner
 

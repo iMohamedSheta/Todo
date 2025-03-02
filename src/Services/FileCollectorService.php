@@ -4,54 +4,70 @@ declare(strict_types=1);
 
 namespace IMohamedSheta\Todo\Services;
 
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\File;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 
 class FileCollectorService
 {
     /**
      * Collect files based on provided folders and/or specific files.
      *
-     * @param  string  $foldersInput  comma-separated list of folders
-     * @param  string|null  $filesInput  comma-separated list of specific files
-     * @return Collection<int , \SplFileInfo>
+     * @param  string  $absoluteFolders  Comma-separated list of folders
+     * @param  string|null  $absoluteFiles  Comma-separated list of specific files
+     * @return array<int, SplFileInfo>
      */
-    public function collectFiles(string $foldersInput = '', ?string $filesInput = null): Collection
+    public function collectFiles(string $absoluteFolders = '', ?string $absoluteFiles = null): array
     {
-        /** @var Collection<int, \SplFileInfo> $files */
-        $files = collect([]);
+        $files = [];
 
         // Collect specific files if provided.
-        if ($filesInput !== null && $filesInput !== '' && $filesInput !== '0') {
-            $filesList = array_map('trim', explode(',', $filesInput));
+        if ($absoluteFiles !== null && $absoluteFiles !== '' && $absoluteFiles !== '0' && $absoluteFiles !== '0') {
+            $filesList = array_map('trim', explode(',', $absoluteFiles));
 
             foreach ($filesList as $filePath) {
-                $absolutePath = base_path($filePath);
-
-                if (! File::exists($absolutePath)) {
-                    // TODO Log or warn here if a file doesn't exist.
+                if (! file_exists($filePath)) {
                     continue;
                 }
-                // For consistency, pushing files to an SplFileInfo object.
-                $files->push(new \SplFileInfo($absolutePath));
+                $files[] = new SplFileInfo($filePath);
             }
         }
 
         // Collect files from the provided folders.
-        if ($foldersInput !== '' && $foldersInput !== '0') {
-            $folderPaths = array_map('trim', explode(',', $foldersInput));
+        if ($absoluteFolders !== '' && $absoluteFolders !== '0' && $absoluteFolders !== '0') {
+            $folderPaths = array_map('trim', explode(',', $absoluteFolders));
 
             foreach ($folderPaths as $folder) {
-                $absoluteFolder = base_path($folder);
-
-                if (! File::exists($absoluteFolder)) {
-                    // TODO Log or warn here if a folder doesn't exist.
+                if (! is_dir($folder)) {
                     continue;
                 }
 
-                // File::allFiles returns an array of SplFileInfo objects.
-                $folderFiles = File::allFiles($absoluteFolder);
-                $files = $files->merge($folderFiles);
+                foreach ($this->scanFolderFiles($folder) as $file) {
+                    $files[] = $file;
+                }
+            }
+        }
+
+        return $files;
+    }
+
+    /**
+     * Scan a folder and return an array of SplFileInfo objects.
+     *
+     * @return array<int, SplFileInfo>
+     */
+    protected function scanFolderFiles(string $folder): array
+    {
+        $files = [];
+
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($folder, RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $file) {
+
+            if ($file instanceof SplFileInfo && $file->isFile()) {
+                $files[] = $file;
             }
         }
 
