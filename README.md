@@ -18,7 +18,7 @@ A small Laravel package that helps you track and manage technical debt by scanni
 1. Install via Composer:
 
 ```bash
-composer require imohamedsheta/todo
+composer require laravel-attributes/todo
 ```
 
 2. The package will auto-register its service provider and command.
