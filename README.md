@@ -25,6 +25,23 @@ composer require laravel-attributes/todo
 
 ## Usage 🚀
 
+## Adding TODOs 📝
+
+### Class-level TODO
+```php
+<?php
+
+namespace App\Models;
+
+use IMohamedSheta\Todo\Attributes\TODO;
+
+#[TODO('Implement soft deletion support')]
+class Post
+{
+    // Class implementation...
+}
+```
+
 ### Basic Scan
 Scan default directory (app):
 ```bash
@@ -44,23 +61,6 @@ php artisan todo
 +----------+-----------------------------------+-------------------------------+
 
 🎯 Total TODOs Found: 3
-```
-
-## Adding TODOs 📝
-
-### Class-level TODO
-```php
-<?php
-
-namespace App\Models;
-
-use IMohamedSheta\Todo\Attributes\TODO;
-
-#[TODO('Implement soft deletion support')]
-class Post
-{
-    // Class implementation...
-}
 ```
 
 ### Method-level TODO
