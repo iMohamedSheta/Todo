@@ -1,6 +1,6 @@
 {
     "name": "laravel-attributes/todo",
-    "description": "A Laravel package to scan #[TODO] attributes. (Under Construction - Not Finished, Not Tested)",
+    "description": "A Laravel package to scan #[TODO] attributes.",
     "keywords": [
         "laravel",
         "todo",
