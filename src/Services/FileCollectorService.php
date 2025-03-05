@@ -59,6 +59,8 @@ class FileCollectorService
     /**
      * Scan a folder and return an array of SplFileInfo objects.
      *
+     * @param  string  $folder  Folder path
+     * @param  array<string, bool>  $excludedFiles  Excluded files
      * @return array<int, SplFileInfo>
      */
     protected function scanFolderFiles(string $folder, array $excludedFiles = []): array
