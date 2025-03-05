@@ -20,21 +20,26 @@ class FileCollectorService
     public function collectFiles(string $absoluteFolders = '', ?string $absoluteFiles = null): array
     {
         $files = [];
+        $excludedFiles = [];
 
         // Collect specific files if provided.
-        if ($absoluteFiles !== null && $absoluteFiles !== '' && $absoluteFiles !== '0' && $absoluteFiles !== '0') {
+        if ($absoluteFiles !== null && $absoluteFiles !== '' && $absoluteFiles !== '0') {
             $filesList = array_map('trim', explode(',', $absoluteFiles));
 
             foreach ($filesList as $filePath) {
-                if (! file_exists($filePath)) {
+                $realPath = realpath($filePath);
+
+                if ($realPath === false) {
                     continue;
                 }
-                $files[] = new SplFileInfo($filePath);
+
+                $files[] = new SplFileInfo($realPath);
+                $excludedFiles[$realPath] = true;
             }
         }
 
         // Collect files from the provided folders.
-        if ($absoluteFolders !== '' && $absoluteFolders !== '0' && $absoluteFolders !== '0') {
+        if ($absoluteFolders !== '' && $absoluteFolders !== '0') {
             $folderPaths = array_map('trim', explode(',', $absoluteFolders));
 
             foreach ($folderPaths as $folder) {
@@ -42,7 +47,7 @@ class FileCollectorService
                     continue;
                 }
 
-                foreach ($this->scanFolderFiles($folder) as $file) {
+                foreach ($this->scanFolderFiles($folder, $excludedFiles) as $file) {
                     $files[] = $file;
                 }
             }
@@ -56,7 +61,7 @@ class FileCollectorService
      *
      * @return array<int, SplFileInfo>
      */
-    protected function scanFolderFiles(string $folder): array
+    protected function scanFolderFiles(string $folder, array $excludedFiles = []): array
     {
         $files = [];
 
@@ -65,8 +70,7 @@ class FileCollectorService
         );
 
         foreach ($iterator as $file) {
-
-            if ($file instanceof SplFileInfo && $file->isFile()) {
+            if ($file instanceof SplFileInfo && $file->isFile() && ! isset($excludedFiles[$file->getRealPath()])) {
                 $files[] = $file;
             }
         }
