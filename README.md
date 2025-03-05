@@ -29,14 +29,11 @@ composer require laravel-attributes/todo
 
 ### Class-level TODO
 ```php
-<?php
-
-namespace App\Models;
-
 use IMohamedSheta\Todo\Attributes\TODO;
+use IMohamedSheta\Todo\Enums\Priority;
 
-#[TODO('Implement soft deletion support')]
-class Post
+#[TODO('Need to create extractChunks.', Priority::Medium)]
+class ExcelTextExtractor
 {
     // Class implementation...
 }
@@ -52,25 +49,26 @@ php artisan todo
 ```bash
 🔍 Scanning for TODOs...
 
-+----------+-----------------------------------+-------------------------------+
-| Type     | Class/Method                      | Message                       |
-+----------+-----------------------------------+-------------------------------+
-| Class    | App\Models\Subscription           | Implement renewal logic       |
-| Method   | App\Services\Payment::process     | Add currency conversion       |
-| Function | routes/api.php -> rateLimit()     | Implement dynamic throttling  |
-+----------+-----------------------------------+-------------------------------+
++----------+------------------------------------------------------+----------+----------------------------------+
+| Type     | Class/Method/Function                                | Priority | Message                          |
++----------+------------------------------------------------------+----------+----------------------------------+
+| Class    | App\Extractors\FileTextExtractors\ExcelTextExtractor | Medium   | Need to create extractChunks.    |
+| Method   | App\Actions\Auth\RegisterAction::createClinicAdmin() | High     | Generate a unique billing code   |
+| Function | app\Helpers\helpers.php -> array_only()              | Medium   | Not finished yet                 |
++----------+------------------------------------------------------+----------+----------------------------------+
 
 🎯 Total TODOs Found: 3
 ```
 
 ### Method-level TODO
 ```php
-namespace App\Services;
+use IMohamedSheta\Todo\Attributes\TODO;
+use IMohamedSheta\Todo\Enums\Priority;
 
-class NotificationService
+class RegisterAction
 {
-    #[TODO('Add SMS notification support')]
-    public function sendReminder()
+    #[TODO('Generate a unique billing code for the clinic', Priority::High)]
+    public function createClinicAdmin()
     {
         // Method implementation...
     }
@@ -79,12 +77,12 @@ class NotificationService
 
 ### Function-level TODO
 ```php
-<?php
-
 use IMohamedSheta\Todo\Attributes\TODO;
+use IMohamedSheta\Todo\Enums\Priority;
 
-#[TODO('Optimize database query')]
-function generateReport() {
+#[TODO('Not finished yet', Priority::Medium)]
+function array_only()
+{
     // Function logic...
 }
 ```
@@ -94,7 +92,7 @@ function generateReport() {
 ### Default Message
 When no message is provided:
 ```php
-#[TODO] // Shows "Not finished yet" in output
+#[TODO] // Shows "Not finished yet" in output and priority medium as default
 class PendingFeature
 {
     // ...
