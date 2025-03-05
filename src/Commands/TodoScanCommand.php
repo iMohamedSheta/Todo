@@ -29,7 +29,9 @@ class TodoScanCommand extends Command
     {
         $this->info("\n🔍 Scanning for TODOs...\n");
 
-        $files = $this->fileCollectorService->collectFiles($this->getScannedFolderFullPath());
+        $src = is_string($this->option('src')) ? $this->option('src') : 'app';
+
+        $files = $this->fileCollectorService->collectFiles($this->getScannedFolderFullPath($src));
 
         if ($files === []) {
             $this->info("✅ No TODOs found!\n");
@@ -45,7 +47,7 @@ class TodoScanCommand extends Command
             return 0;
         }
 
-        $tableHeader = ['Type', 'Class/Method', 'Message'];
+        $tableHeader = ['Type', 'Class/Method/Function', 'Priority', 'Message'];
 
         $this->table(
             $tableHeader,
@@ -88,13 +90,15 @@ class TodoScanCommand extends Command
      */
     protected function checkFunctionLevelAttributes(SplFileInfo $file, array &$todos): void
     {
-        $functions = $this->namespaceResolverService->getFunctionsFromFile($file->getRealPath());
+        $realPath = $file->getRealPath();
+        $functions = $this->namespaceResolverService->getFunctionsFromFile($realPath);
 
         foreach ($functions as $function) {
             if (function_exists($function)) {
                 $reflection = new ReflectionFunction($function);
-                foreach ($reflection->getAttributes(TODO::class) as $attr) {
-                    $todos[] = ['Function', $function, $attr->newInstance()->message];
+                foreach ($reflection->getAttributes(TODO::class) as $attribute) {
+                    $attribute = $attribute->newInstance();
+                    $todos[] = ['Function',  $this->getFilePathStartFromBasePath($realPath).' -> '.$function.'()', $attribute->priority->label(), $attribute->message];
                 }
             }
         }
@@ -106,8 +110,9 @@ class TodoScanCommand extends Command
      */
     protected function checkClassLevelAttributes(ReflectionClass $reflection, array &$todos): void
     {
-        foreach ($reflection->getAttributes(TODO::class) as $attr) {
-            $todos[] = ['Class', $reflection->getName(), $attr->newInstance()->message];
+        foreach ($reflection->getAttributes(TODO::class) as $attribute) {
+            $attribute = $attribute->newInstance();
+            $todos[] = ['Class', $reflection->getName(), $attribute->priority->label(), $attribute->message];
         }
     }
 
@@ -118,23 +123,40 @@ class TodoScanCommand extends Command
     protected function checkMethodLevelAttributes(ReflectionClass $reflection, array &$todos): void
     {
         foreach ($reflection->getMethods() as $method) {
-            foreach ($method->getAttributes(TODO::class) as $attr) {
-                $todos[] = ['Method', "{$reflection->getName()}::{$method->getName()}()", $attr->newInstance()->message];
+            foreach ($method->getAttributes(TODO::class) as $attribute) {
+                $attribute = $attribute->newInstance();
+                $todos[] = ['Method', "{$reflection->getName()}::{$method->getName()}()", $attribute->priority->label(), $attribute->message];
             }
         }
     }
 
     /**
+     * @param  string  $realPath  full path of the file
+     * @return string file path start from the base path of the project
+     */
+    private function getFilePathStartFromBasePath(string $realPath): string
+    {
+        return str_replace($this->getBasePath().DIRECTORY_SEPARATOR, '', $realPath);
+    }
+
+    /**
      * get scanned folder full path
      *
+     * @param  string  $src  scanned folder based on the base project path
      * @return string scanned folder full path
      */
-    private function getScannedFolderFullPath(): string
+    private function getScannedFolderFullPath(string $src): string
     {
-        $src = is_string($this->option('src')) ? $this->option('src') : 'app';
+        return $this->getBasePath().DIRECTORY_SEPARATOR.$src;
+    }
 
-        $basePath = dirname(__DIR__, 5);
-
-        return $basePath.DIRECTORY_SEPARATOR.$src;
+    /**
+     *  get base path of the project
+     *
+     * @return string base path of the project
+     */
+    private function getBasePath(): string
+    {
+        return dirname(__DIR__, 5);
     }
 }
