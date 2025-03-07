@@ -54,7 +54,7 @@ class TodoScanCommand extends Command
             $todos,
         );
 
-        $this->info("\n🎯 Total TODOs Found: " . count($todos) . "\n");
+        $this->info("\n🎯 Total TODOs Found: ".count($todos)."\n");
 
         return 1;
     }
@@ -98,7 +98,7 @@ class TodoScanCommand extends Command
                 $reflection = new ReflectionFunction($function);
                 foreach ($reflection->getAttributes(TODO::class) as $attribute) {
                     $attribute = $attribute->newInstance();
-                    $todos[] = ['Function',  $this->getFilePathStartFromBasePath($realPath) . ' -> ' . $function . '()', $attribute->priority->label(), $attribute->message];
+                    $todos[] = ['Function',  $this->getFilePathStartFromBasePath($realPath).' -> '.$function.'()', $attribute->priority->label(), $attribute->message];
                 }
             }
         }
@@ -136,7 +136,7 @@ class TodoScanCommand extends Command
      */
     private function getFilePathStartFromBasePath(string $realPath): string
     {
-        return str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $realPath);
+        return str_replace($this->getBasePath().DIRECTORY_SEPARATOR, '', $realPath);
     }
 
     /**
@@ -147,7 +147,7 @@ class TodoScanCommand extends Command
      */
     private function getScannedFolderFullPath(string $src): string
     {
-        return $this->getBasePath() . DIRECTORY_SEPARATOR . $src;
+        return $this->getBasePath().DIRECTORY_SEPARATOR.$src;
     }
 
     /**
