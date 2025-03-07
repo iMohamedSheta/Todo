@@ -54,7 +54,7 @@ class TodoScanCommand extends Command
             $todos,
         );
 
-        $this->info("\n🎯 Total TODOs Found: ".count($todos)."\n");
+        $this->info("\n🎯 Total TODOs Found: " . count($todos) . "\n");
 
         return 1;
     }
@@ -63,7 +63,7 @@ class TodoScanCommand extends Command
      * Scan files for TODOs
      *
      * @param  array<int, SplFileInfo>  $files
-     * @return array<int, array{string, string, string}>
+     * @return array<int, array{string, string, string, string}> $todos
      */
     protected function scanFiles(array $files): array
     {
@@ -86,7 +86,7 @@ class TodoScanCommand extends Command
     /**
      *  Check function level attributes
      *
-     * @param  array<int, array{string, string, string}>  &$todos
+     * @param  array<int, array{string, string, string, string}>  &$todos
      */
     protected function checkFunctionLevelAttributes(SplFileInfo $file, array &$todos): void
     {
@@ -98,7 +98,7 @@ class TodoScanCommand extends Command
                 $reflection = new ReflectionFunction($function);
                 foreach ($reflection->getAttributes(TODO::class) as $attribute) {
                     $attribute = $attribute->newInstance();
-                    $todos[] = ['Function',  $this->getFilePathStartFromBasePath($realPath).' -> '.$function.'()', $attribute->priority->label(), $attribute->message];
+                    $todos[] = ['Function',  $this->getFilePathStartFromBasePath($realPath) . ' -> ' . $function . '()', $attribute->priority->label(), $attribute->message];
                 }
             }
         }
@@ -106,7 +106,7 @@ class TodoScanCommand extends Command
 
     /**
      * @param  ReflectionClass<object>  $reflection
-     * @param  array<int, array{string, string, string}>  $todos
+     * @param  array<int, array{string, string, string, string}>  $todos
      */
     protected function checkClassLevelAttributes(ReflectionClass $reflection, array &$todos): void
     {
@@ -118,7 +118,7 @@ class TodoScanCommand extends Command
 
     /**
      * @param  ReflectionClass<object>  $reflection
-     * @param  array<int, array{string, string, string}>  $todos
+     * @param  array<int, array{string, string, string, string}>  $todos
      */
     protected function checkMethodLevelAttributes(ReflectionClass $reflection, array &$todos): void
     {
@@ -136,7 +136,7 @@ class TodoScanCommand extends Command
      */
     private function getFilePathStartFromBasePath(string $realPath): string
     {
-        return str_replace($this->getBasePath().DIRECTORY_SEPARATOR, '', $realPath);
+        return str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $realPath);
     }
 
     /**
@@ -147,7 +147,7 @@ class TodoScanCommand extends Command
      */
     private function getScannedFolderFullPath(string $src): string
     {
-        return $this->getBasePath().DIRECTORY_SEPARATOR.$src;
+        return $this->getBasePath() . DIRECTORY_SEPARATOR . $src;
     }
 
     /**
